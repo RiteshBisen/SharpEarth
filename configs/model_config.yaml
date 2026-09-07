@@ -1,0 +1,35 @@
+# SwinSR-GAN Architecture Specifications
+
+architecture:
+  name: "SwinSR-GAN"
+  type: "Hybrid CNN + Swin Transformer + RaGAN"
+  scaling_support: [2.5, 3.0, 4.0]
+  default_scale: 4.0
+
+generator_components:
+  feature_extractor:
+    conv_channels: 64
+    kernel_size: 3
+  rrdb_trunk:
+    num_blocks: 4
+    growth_rate: 32
+  swin_transformer_trunk:
+    num_blocks: 2
+    window_size: 8
+    num_heads: 4
+    mlp_ratio: 2.0
+    drop_rate: 0.1
+    attn_drop_rate: 0.0
+  upsampler:
+    type: "PixelShuffle"
+    upscale_factor: 4
+  output_head:
+    num_bands: 4
+    bands: ["B2", "B3", "B4", "B8"]
+
+discriminator_components:
+  type: "RelativisticAverageGAN"
+  conv_channels: [64, 128, 256, 512]
+  leaky_relu_slope: 0.2
+
+seed: 42

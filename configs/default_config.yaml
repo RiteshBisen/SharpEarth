@@ -1,0 +1,72 @@
+# SharpEarth Default System Configuration
+
+project:
+  name: "SharpEarth"
+  version: "1.0.0"
+  description: "Deep Learning Super-Resolution Mapping (SRM) for Sentinel-2 Imagery"
+
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  splits_dir: "data/splits"
+  bands: ["B2", "B3", "B4", "B8"] # Blue, Green, Red, NIR
+  in_channels: 4
+  out_channels: 4
+  lr_res_m: 10.0
+  hr_target_res_m: 2.5
+  scale_factor: 4 # Configurable: 2.5, 3, 4
+  patch_size_lr: 64
+  patch_size_hr: 256
+  stride_lr: 32
+  cloud_threshold: 0.15 # Max allowable cloud cover percentage
+
+normalization:
+  min_val: 0.0
+  max_val: 10000.0 # Sentinel-2 L2A reflectance scale
+
+model:
+  generator:
+    num_rrdb_blocks: 4
+    num_swin_blocks: 2
+    embed_dim: 64
+    num_heads: 4
+    window_size: 8
+    dropout_rate: 0.1 # Used for MC-Dropout uncertainty estimation
+  discriminator:
+    num_filters: 64
+    num_layers: 4
+
+training:
+  stage1:
+    epochs: 10
+    learning_rate: 2.0e-4
+    batch_size: 4
+    loss_weights:
+      l1: 1.0
+      spectral_sam: 0.5
+  stage2:
+    epochs: 20
+    learning_rate: 1.0e-4
+    batch_size: 4
+    loss_weights:
+      l1: 1.0
+      charbonnier: 0.5
+      perceptual_vgg: 0.1
+      spectral_sam: 0.5
+      adversarial_ragan: 0.005
+    gan_warmup_epochs: 2
+
+uncertainty:
+  mc_dropout_passes: 10
+  confidence_threshold: 0.75 # Values below trigger manual review flag
+
+validation:
+  metrics: ["psnr", "ssim", "ergas", "sam", "niqe", "brisque"]
+
+serving:
+  host: "0.0.0.0"
+  port: 8000
+  titiler_url: "http://localhost:8000/titiler"
+  stac_version: "1.0.0"
+
+disclaimer: "AI-ENHANCED — NOT OBSERVED. Reconstructed high-resolution details are inferred by deep learning and must not be interpreted as direct satellite observations."

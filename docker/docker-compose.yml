@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    container_name: sharpearth_api
+    command: python -m src.serving.api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../data:/app/data
+      - ../configs:/app/configs
+    environment:
+      - FASTAPI_ENV=production
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+    container_name: sharpearth_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api

@@ -1,0 +1,43 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Caches and Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment variables
+.env
+.env.local
+
+# Node / Frontend Build
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+*.log
+
+# Python Virtual Environments
+venv/
+.venv/
+env/
+
+# IDE & System Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Data directories (ignore raw/processed generated runs while tracking placeholder structure)
+data/raw/*
+data/processed/*
+data/splits/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/splits/.gitkeep
+
+# Model Checkpoints (Include SharpEarth pre-trained model weights)
+!configs/sharpearth_swinsr_gan.pth

@@ -1,0 +1,114 @@
+/* SharpEarth Responsive GIS & AI Dashboard Styling */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+  --bg-primary: #0b0f19;
+  --bg-card: rgba(18, 24, 38, 0.85);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --accent-emerald: #10b981;
+  --accent-cyan: #06b6d4;
+  --accent-amber: #f59e0b;
+  --accent-danger: #ef4444;
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
+}
+
+/* Mandatory AI Disclaimer Banner */
+.disclaimer-banner {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(245, 158, 11, 0.2));
+  border: 1px solid var(--accent-amber);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);
+}
+
+.disclaimer-title {
+  color: #fef08a;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.disclaimer-sub {
+  color: #f3f4f6;
+  font-size: 0.875rem;
+}
+
+/* Metric Cards Grid */
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.metric-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+  backdrop-filter: blur(8px);
+}
+
+.metric-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+}
+
+.metric-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Responsive Layout Breakpoints */
+
+/* Mobile (up to 767px) */
+@media screen and (max-width: 767px) {
+  .stApp {
+    padding: 8px !important;
+  }
+
+  .metric-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .disclaimer-title {
+    font-size: 0.95rem;
+  }
+
+  .disclaimer-sub {
+    font-size: 0.78rem;
+  }
+}
+
+/* Tablet (768px to 1023px) */
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+  .metric-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Desktop (1024px+) */
+@media screen and (min-width: 1024px) {
+  .metric-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
