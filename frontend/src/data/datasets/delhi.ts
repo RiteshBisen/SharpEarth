@@ -1,0 +1,65 @@
+import { GeoDataset } from '@/types/dataset';
+
+export const DELHI_DATASET: GeoDataset = {
+  id: 'delhi-ncr-urban',
+  name: 'Delhi NCR — Urban Infrastructure',
+  location: 'New Delhi & Gurgaon, NCR, India',
+  region: 'National Capital Region',
+  country: 'India',
+  domain: 'urban',
+  coordinates: {
+    lat: 28.6139,
+    lng: 77.2090,
+    zoom: 15,
+    bbox: [77.1800, 28.5950, 77.2350, 28.6300],
+    epsg: 'EPSG:32643',
+  },
+  acquisitionDate: '2024-05-15',
+  source: 'Sentinel-2 L2A',
+  cloudCover: 3.4,
+  inputRes: '10 m',
+  defaultTargetRes: '2.5 m equivalent',
+  bands: ['B02 (Blue)', 'B03 (Green)', 'B04 (Red)', 'B08 (NIR)'],
+  thumbnailColor: '#0284c7', // Cyan/blue modern metropolitan tint
+  metrics: {
+    psnr: 34.60,
+    ssim: 0.9380,
+    ergas: 2.35,
+    sam: 2.92,
+    niqe: 4.18,
+    brisque: 18.2,
+    footprintIoU: 88.1,
+  },
+  spectralProfile: {
+    ndvi: 0.19,
+    ndwi: -0.31,
+    bands: [
+      { band: 'B02', name: 'Blue', wavelengthNm: 490, observedReflectance: 0.150, enhancedReflectance: 0.149, residualDelta: -0.001 },
+      { band: 'B03', name: 'Green', wavelengthNm: 560, observedReflectance: 0.188, enhancedReflectance: 0.187, residualDelta: -0.001 },
+      { band: 'B04', name: 'Red', wavelengthNm: 665, observedReflectance: 0.240, enhancedReflectance: 0.239, residualDelta: -0.001 },
+      { band: 'B08', name: 'NIR', wavelengthNm: 842, observedReflectance: 0.298, enhancedReflectance: 0.296, residualDelta: -0.002 },
+    ],
+  },
+  stacMetadata: {
+    id: 'S2A_MSIL2A_43RQT_20240515_DELHI',
+    stacVersion: '1.0.0',
+    collection: 'sentinel-2-l2a-sharpearth-sr',
+    bbox: [77.1800, 28.5950, 77.2350, 28.6300],
+    properties: {
+      datetime: '2024-05-15T05:40:02Z',
+      platform: 'Sentinel-2A',
+      instruments: ['MSI'],
+      gsd: 2.5,
+      'eo:cloud_cover': 3.4,
+      'sharpearth:scale_factor': '4.0x',
+      'sharpearth:mc_dropout_passes': 10,
+      'sharpearth:mean_confidence': 88.8,
+    },
+    assets: {
+      enhanced_cog: { href: '/api/v1/assets/delhi_sr.tif', type: 'image/tiff', title: 'Enhanced COG' },
+      confidence_cog: { href: '/api/v1/assets/delhi_conf.tif', type: 'image/tiff', title: 'Confidence COG' },
+      original_s2: { href: '/api/v1/assets/delhi_s2.tif', type: 'image/tiff', title: 'Original S2' },
+    },
+  },
+  description: 'High-density capital metropolis including Lutyens Delhi radial avenues, Yamuna river corridor, and commercial high-rises.',
+};

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, Sliders, ShieldCheck, Layers, FileJson, Sparkles } from 'lucide-react';
+import { Download, Sliders, ShieldCheck, Layers, FileJson, Sparkles, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -11,10 +11,11 @@ import { MetricsGrid } from '@/components/metrics/MetricsGrid';
 import { SpectralIntegrityTable } from '@/components/metrics/SpectralIntegrityTable';
 import { DownstreamValidationTabs } from '@/components/metrics/DownstreamValidationTabs';
 import { GeospatialExportPanel } from '@/components/analysis/GeospatialExportPanel';
+import { useAnalysis } from '@/context/AnalysisContext';
 
 export const ResultsWorkspacePage: React.FC = () => {
+  const { activeDataset, activeAnalysis, exportArtifact } = useAnalysis();
   const [viewMode, setViewMode] = useState<'swipe' | 'split' | 'confidence'>('swipe');
-  const [confThreshold, setConfThreshold] = useState<number>(0.75);
 
   const viewTabs = [
     { id: 'swipe', label: 'Interactive Swipe (Original ↔ Enhanced)' },
@@ -28,18 +29,26 @@ export const ResultsWorkspacePage: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-              Analysis: Urban Infrastructure — Jaipur
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-blue-600 shrink-0" />
+              <span>Analysis: {activeAnalysis.title || activeDataset.name}</span>
             </h1>
             <AIDisclaimerBadge />
+            <Badge variant="amber" size="sm">
+              DEMO DATA
+            </Badge>
           </div>
           <p className="text-xs text-slate-500 font-mono">
-            Tile ID: <span className="text-blue-700 font-semibold">S2B_MSIL2A_32TQD_20240520</span> | Input: 10 m → Target: <span className="text-emerald-700 font-semibold">4 m equivalent</span>
+            Location: <span className="text-slate-900 font-semibold">{activeDataset.location}</span> | Tile ID: <span className="text-blue-700 font-semibold">{activeAnalysis.stacMetadata?.id || activeDataset.stacMetadata.id}</span> | Input: <span className="text-slate-900">{activeAnalysis.inputRes}</span> → Target: <span className="text-emerald-700 font-bold">{activeAnalysis.targetRes} ({activeAnalysis.scale})</span>
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <Button variant="primary" icon={<Download className="w-4 h-4" />}>
+          <Button
+            variant="primary"
+            onClick={() => exportArtifact('bundle')}
+            icon={<Download className="w-4 h-4" />}
+          >
             Export Result Bundle
           </Button>
         </div>
@@ -58,12 +67,7 @@ export const ResultsWorkspacePage: React.FC = () => {
       <MetricsGrid hasHRReference={true} />
 
       {/* Monte-Carlo Confidence Overlay & Manual Review Risk Analysis */}
-      <ConfidenceLayerOverlay
-        confidenceThreshold={confThreshold}
-        onThresholdChange={setConfThreshold}
-        meanConfidence={0.885}
-        lowConfidencePercentage={8.4}
-      />
+      <ConfidenceLayerOverlay />
 
       {/* Multispectral Integrity Table */}
       <SpectralIntegrityTable />

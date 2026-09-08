@@ -1,29 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  CheckCircle2,
-  Loader2,
-  Cpu,
-  Terminal,
-  ShieldCheck,
-  ArrowRight,
-} from 'lucide-react';
+import { CheckCircle2, Loader2, Terminal, ArrowRight } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { useAnalysis } from '@/context/AnalysisContext';
 
 export interface ProcessingPipelineModalProps {
   isOpen: boolean;
   onClose: () => void;
   tileId: string;
+  datasetId?: string;
+  onComplete?: () => void;
 }
 
 export const ProcessingPipelineModal: React.FC<ProcessingPipelineModalProps> = ({
   isOpen,
   onClose,
   tileId,
+  datasetId,
+  onComplete,
 }) => {
   const navigate = useNavigate();
+  const { startAnalysis, configuration, activeDataset } = useAnalysis();
+
   const [currentStep, setCurrentStep] = useState(0);
   const [showLogs, setShowLogs] = useState(false);
 
@@ -32,8 +32,8 @@ export const ProcessingPipelineModal: React.FC<ProcessingPipelineModalProps> = (
     { title: 'Cloud & shadow masking', desc: 'SCL + s2cloudless filter' },
     { title: 'Sub-pixel co-registration', desc: 'Phase correlation alignment' },
     { title: 'Patch extraction', desc: 'Overlapping 64x64 patches' },
-    { title: 'SwinSR-GAN inference', desc: 'RRDB + Swin Transformer 4x upsampling' },
-    { title: 'Uncertainty estimation', desc: 'MC-Dropout stochastic passes (N=10)' },
+    { title: `SwinSR-GAN inference (${configuration.targetRes}m)`, desc: `RRDB + Swin Transformer ${(10 / configuration.targetRes).toFixed(1)}x upsampling` },
+    { title: 'Uncertainty estimation', desc: `MC-Dropout stochastic passes (N=${configuration.mcPasses})` },
     { title: 'Scientific validation', desc: 'PSNR, SSIM, ERGAS, SAM calculation' },
     { title: 'COG & STAC packaging', desc: 'Preserving CRS & GeoTransform' },
   ];
@@ -53,15 +53,17 @@ export const ProcessingPipelineModal: React.FC<ProcessingPipelineModalProps> = (
           return prev;
         }
       });
-    }, 800);
+    }, 450);
 
     return () => clearInterval(interval);
-  }, [isOpen]);
+  }, [isOpen, steps.length]);
 
   const isComplete = currentStep === steps.length - 1;
   const progressPercent = Math.round(((currentStep + 1) / steps.length) * 100);
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
+    await startAnalysis(datasetId || activeDataset.id);
+    if (onComplete) onComplete();
     onClose();
     navigate('/app/results');
   };
@@ -72,7 +74,9 @@ export const ProcessingPipelineModal: React.FC<ProcessingPipelineModalProps> = (
         {/* Status Bar Header */}
         <div className="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-200">
           <div>
-            <div className="text-xs text-slate-500 font-mono">Target Tile ID: <span className="text-blue-700 font-bold">{tileId}</span></div>
+            <div className="text-xs text-slate-500 font-mono">
+              Target Tile / Location: <span className="text-blue-700 font-bold">{tileId}</span>
+            </div>
             <div className="text-sm font-semibold text-slate-900 mt-0.5">
               {isComplete ? 'Analysis Pipeline Completed' : `Executing Stage: ${steps[currentStep].title}`}
             </div>
@@ -147,12 +151,14 @@ export const ProcessingPipelineModal: React.FC<ProcessingPipelineModalProps> = (
         {/* Technical Logs Box */}
         {showLogs && (
           <div className="p-3 bg-slate-900 border border-slate-800 rounded-lg text-[10px] font-mono text-emerald-400 max-h-36 overflow-y-auto space-y-1">
+            <div>[INFO] Target Dataset: {activeDataset.name} ({activeDataset.coordinates.epsg})</div>
             <div>[INFO] PyTorch CUDA Device: NVIDIA A10G (24GB)</div>
             <div>[INFO] Loading SwinSR-GAN weights from configs/sharpearth_swinsr_gan.pth</div>
-            <div>[INFO] Performing 10 MC-Dropout stochastic forward passes...</div>
-            <div>[INFO] Pixel-wise variance mean: 0.0124 | Normalized confidence: 88.5%</div>
-            <div>[INFO] Exported Cloud-Optimized GeoTIFF: data/processed/demo_32tqd_SR_COG.tif</div>
-            <div>[INFO] STAC Item JSON written: data/processed/demo_32tqd_STAC.json</div>
+            <div>[INFO] Executing target spatial scale: {configuration.targetRes}m equivalent</div>
+            <div>[INFO] Performing {configuration.mcPasses} MC-Dropout stochastic forward passes...</div>
+            <div>[INFO] Pixel-wise variance mean: 0.0124 | Mean Confidence: {activeDataset.stacMetadata.properties['sharpearth:mean_confidence']}%</div>
+            <div>[INFO] Exported Cloud-Optimized GeoTIFF: data/processed/{activeDataset.id}_SR_COG.tif</div>
+            <div>[INFO] STAC Item JSON written: data/processed/{activeDataset.id}_STAC.json</div>
           </div>
         )}
       </div>
